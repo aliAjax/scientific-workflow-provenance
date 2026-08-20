@@ -20,6 +20,9 @@ func NewLocks() *LockTable { return &LockTable{items: map[string]Lock{}} }
 func (l *LockTable) Acquire(name, owner string, ttl time.Duration) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if l.items == nil {
+		l.items = map[string]Lock{}
+	}
 	now := time.Now()
 	if x, ok := l.items[name]; ok && x.ExpiresAt.After(now) && x.Owner != owner {
 		return errors.New("lock held")

@@ -19,5 +19,16 @@ func NewSampler(rate float64) *Sampler {
 	}
 	return &Sampler{rate: rate}
 }
-func (s *Sampler) Keep() bool   { atomic.AddUint64(&s.seen, 1); return rand.Float64() < s.rate }
-func (s *Sampler) Seen() uint64 { return atomic.LoadUint64(&s.seen) }
+func (s *Sampler) Keep() bool {
+	if s == nil {
+		return false
+	}
+	atomic.AddUint64(&s.seen, 1)
+	return rand.Float64() < s.rate
+}
+func (s *Sampler) Seen() uint64 {
+	if s == nil {
+		return 0
+	}
+	return atomic.LoadUint64(&s.seen)
+}

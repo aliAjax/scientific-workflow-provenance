@@ -15,12 +15,29 @@ type Registry struct {
 func New() *Registry {
 	return &Registry{counters: map[string]uint64{}, gauges: map[string]float64{}, hist: map[string][]float64{}}
 }
-func (r *Registry) Inc(name string, n uint64)  { r.mu.Lock(); r.counters[name] += n; r.mu.Unlock() }
-func (r *Registry) Set(name string, v float64) { r.mu.Lock(); r.gauges[name] = v; r.mu.Unlock() }
+func (r *Registry) Inc(name string, n uint64) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.counters == nil {
+		r.counters = map[string]uint64{}
+	}
+	r.counters[name] += n
+}
+func (r *Registry) Set(name string, v float64) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.gauges == nil {
+		r.gauges = map[string]float64{}
+	}
+	r.gauges[name] = v
+}
 func (r *Registry) Observe(name string, v float64) {
 	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.hist == nil {
+		r.hist = map[string][]float64{}
+	}
 	r.hist[name] = append(r.hist[name], v)
-	r.mu.Unlock()
 }
 func (r *Registry) Snapshot() map[string]any {
 	r.mu.Lock()

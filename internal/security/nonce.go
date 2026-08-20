@@ -18,8 +18,11 @@ func (n *NonceStore) Issue(ttl time.Duration) string {
 	_, _ = rand.Read(b)
 	v := hex.EncodeToString(b)
 	n.mu.Lock()
+	defer n.mu.Unlock()
+	if n.items == nil {
+		n.items = map[string]time.Time{}
+	}
 	n.items[v] = time.Now().Add(ttl)
-	n.mu.Unlock()
 	return v
 }
 func (n *NonceStore) Consume(v string) bool {
