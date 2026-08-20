@@ -64,11 +64,7 @@ func write(w http.ResponseWriter, status int, v any) {
 }
 
 func writeRun(w http.ResponseWriter, status int, run workflow.Run) {
-	view := run
-	if run.Status == workflow.Retrying {
-		view.Status = workflow.Running
-	}
-	write(w, status, view)
+	write(w, status, run)
 }
 func errWrite(w http.ResponseWriter, status int, err error) {
 	write(w, status, map[string]any{"error": map[string]any{"code": http.StatusText(status), "message": err.Error()}})

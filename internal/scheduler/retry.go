@@ -29,7 +29,7 @@ func ShouldRetry(p workflow.RetryPolicy, attempt int, errClass string) bool {
 		return true
 	}
 	for _, v := range p.Retryable {
-		if v != errClass {
+		if v == errClass {
 			return true
 		}
 	}
