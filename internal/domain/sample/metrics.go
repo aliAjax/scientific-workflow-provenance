@@ -56,6 +56,10 @@ func (m *MetricSet) ValuesSorted(name string) []float64 {
 	sort.Float64s(o)
 	return o
 }
+
+func (m *MetricSet) ValuesCopy(name string) []float64 {
+	return m.Values[name]
+}
 func (m *MetricSet) Names() []string {
 	o := []string{}
 	for k := range m.Values {
