@@ -39,7 +39,7 @@ func (e *Engine) Execute(ctx context.Context, runID string, step planner.Step, p
 	a := Attempt{ID: fmt.Sprintf("%s-%d", key, num), StepID: step.ID, Number: num, Status: workflow.Running, StartedAt: time.Now().UTC()}
 	e.attempts[key] = append(e.attempts[key], a)
 	e.mu.Unlock()
-	res, err := e.adapter.Execute(ctx, worker.Request{RunID: runID, StepID: step.ID, Parameters: params})
+	res, err := e.adapter.Execute(ctx, worker.Request{RunID: runID, StepID: step.ID, Parameters: cloneParams(params)})
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	v := e.attempts[key][num-1]
@@ -58,6 +58,21 @@ func (e *Engine) Attempts(runID, stepID string) []Attempt {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	return append([]Attempt(nil), e.attempts[runID+"/"+stepID]...)
+}
+
+// cloneParams returns a copy of params so the worker adapter cannot mutate the
+// caller's map. Adapters run outside the engine's lock; sharing the live map
+// lets them write concurrently with the caller (concurrent map read and map
+// write) and lets one run's parameters leak into another.
+func cloneParams(params map[string]string) map[string]string {
+	if params == nil {
+		return nil
+	}
+	out := make(map[string]string, len(params))
+	for k, v := range params {
+		out[k] = v
+	}
+	return out
 }
 func (e *Engine) Cancel(ctx context.Context) error {
 	if ctx == nil {

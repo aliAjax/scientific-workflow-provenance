@@ -50,19 +50,42 @@ type RunRepo struct {
 }
 
 func NewRunRepo() *RunRepo            { return &RunRepo{data: map[string]workflow.Run{}} }
-func (r *RunRepo) Put(v workflow.Run) { r.mu.Lock(); defer r.mu.Unlock(); r.data[v.ID] = v }
+func (r *RunRepo) Put(v workflow.Run) { r.mu.Lock(); defer r.mu.Unlock(); r.data[v.ID] = cloneRun(v) }
 func (r *RunRepo) Get(id string) (workflow.Run, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v, ok := r.data[id]
-	return v, ok
+	return cloneRun(v), ok
 }
 func (r *RunRepo) List() []workflow.Run {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	o := []workflow.Run{}
+	o := make([]workflow.Run, 0, len(r.data))
 	for _, v := range r.data {
-		o = append(o, v)
+		o = append(o, cloneRun(v))
 	}
 	return o
+}
+
+// cloneRun returns a deep copy of a Run so that callers cannot mutate the
+// maps held in the repository. Maps are reference types in Go, so a struct
+// copy still shares the underlying map; without this, concurrent Get callers
+// race on the same map (concurrent map read and map write) and one run's
+// mutations leak into another's snapshot.
+func cloneRun(r workflow.Run) workflow.Run {
+	r.NodeStates = cloneMap(r.NodeStates)
+	r.Attempts = cloneMap(r.Attempts)
+	r.Parameters = cloneMap(r.Parameters)
+	return r
+}
+
+func cloneMap[K comparable, V any](m map[K]V) map[K]V {
+	if m == nil {
+		return nil
+	}
+	out := make(map[K]V, len(m))
+	for k, v := range m {
+		out[k] = v
+	}
+	return out
 }
