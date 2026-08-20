@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -53,7 +54,12 @@ func (g *Graph) Add(r Record) Record {
 	return r
 }
 
-func (g *Graph) AddValidated(r Record) (Record, error) { return g.Add(r), nil }
+func (g *Graph) AddValidated(r Record) (Record, error) {
+	if err := ValidateRecord(r); err != nil {
+		return Record{}, fmt.Errorf("%w: %v", ErrInvalidChain, err)
+	}
+	return g.Add(r), nil
+}
 func (g *Graph) Relate(r Relation) Relation {
 	g.mu.Lock()
 	defer g.mu.Unlock()

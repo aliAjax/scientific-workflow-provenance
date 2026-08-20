@@ -26,5 +26,14 @@ func (s *ProvenanceService) Activity(typ string, attrs map[string]any) provenanc
 	s.Audit.Append("system", "activity.created", id, nil)
 	return r
 }
-func (s *ProvenanceService) ExportJSON() ([]byte, error) { return json.Marshal(s.Graph.Export()) }
+func (s *ProvenanceService) ExportJSON() ([]byte, error) {
+	var data map[string]any
+	if s.Graph != nil {
+		data = s.Graph.Export()
+	}
+	if err := provenance.ValidateChain(data); err != nil {
+		return nil, err
+	}
+	return json.Marshal(data)
+}
 func (s *ProvenanceService) VerifyAudit() bool           { return s.Audit.Verify() }

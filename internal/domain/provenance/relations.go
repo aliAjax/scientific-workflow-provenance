@@ -1,6 +1,7 @@
 package provenance
 
 import (
+	"fmt"
 	"sort"
 	"time"
 )
@@ -9,7 +10,12 @@ func (g *Graph) LinkDerived(parent, child string) Relation {
 	return g.Relate(Relation{ID: parent + "->" + child, From: parent, To: child, Type: "wasDerivedFrom", At: time.Now().UTC()})
 }
 
-func (g *Graph) LinkValidated(r Relation) (Relation, error) { return g.Relate(r), nil }
+func (g *Graph) LinkValidated(r Relation) (Relation, error) {
+	if err := ValidateRelation(r); err != nil {
+		return Relation{}, fmt.Errorf("%w: %v", ErrInvalidChain, err)
+	}
+	return g.Relate(r), nil
+}
 func (g *Graph) ActivitiesFor(entity string) []Record {
 	g.mu.RLock()
 	defer g.mu.RUnlock()
