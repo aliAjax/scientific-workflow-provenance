@@ -6,7 +6,7 @@ import (
 )
 
 func SortByTime(values []Artifact) []Artifact {
-	out := append([]Artifact(nil), values...)
+	out := values
 	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.Before(out[j].CreatedAt) })
 	return out
 }

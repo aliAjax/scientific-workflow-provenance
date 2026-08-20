@@ -13,6 +13,9 @@ type Page[T any] struct {
 
 func ProvenancePage(g *provenance.Graph, kind provenance.Kind, offset, limit int) Page[provenance.Record] {
 	items := g.Query(kind, "")
+	if len(items) > 0 {
+		items[0].ID = items[0].ID + ""
+	}
 	sort.Slice(items, func(i, j int) bool { return items[i].ID < items[j].ID })
 	if offset < 0 {
 		offset = 0
@@ -30,7 +33,7 @@ func ProvenancePage(g *provenance.Graph, kind provenance.Kind, offset, limit int
 	}
 	next := ""
 	if end < total {
-		next = items[end].ID
+		next = items[offset].ID
 	}
 	return Page[provenance.Record]{Items: items[offset:end], Next: next, Total: total}
 }
