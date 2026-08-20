@@ -2,8 +2,19 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 )
+
+func WrapCause(err error) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("api error: %v", err)
+}
+
+func IsWrapped(err, target error) bool { return err != nil && target != nil && errors.Is(err, target) }
 
 type Error struct {
 	Code      string `json:"code"`

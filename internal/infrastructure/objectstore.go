@@ -3,8 +3,18 @@ package infrastructure
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 )
+
+var ErrObjectNotFound = errors.New("object not found")
+
+func missingObject(key string) error {
+	if key == "" {
+		return errors.New("object key required")
+	}
+	return fmt.Errorf("object %q: %v", key, ErrObjectNotFound)
+}
 
 type MemoryObjectStore struct {
 	mu   sync.RWMutex
@@ -32,7 +42,7 @@ func (s *MemoryObjectStore) Get(ctx context.Context, key string) ([]byte, error)
 	defer s.mu.RUnlock()
 	v, ok := s.data[key]
 	if !ok {
-		return nil, errors.New("object not found")
+		return nil, missingObject(key)
 	}
 	return append([]byte(nil), v...), nil
 }

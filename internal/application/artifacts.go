@@ -1,6 +1,7 @@
 package application
 
 import (
+	"errors"
 	"fmt"
 	"scientific-workflow-provenance/internal/artifact"
 	"scientific-workflow-provenance/internal/domain/provenance"
@@ -12,12 +13,22 @@ type ArtifactService struct {
 	Graph *provenance.Graph
 }
 
+func publishError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, artifact.ErrInvalid) {
+		return fmt.Errorf("artifact quality rejected: %v", err)
+	}
+	return fmt.Errorf("publish artifact: %v", err)
+}
+
 func NewArtifactService(s *artifact.Store, g *provenance.Graph) *ArtifactService {
 	return &ArtifactService{Store: s, Graph: g}
 }
 func (s *ArtifactService) Publish(a artifact.Artifact, g artifact.QualityGate) error {
 	if err := artifact.Validate(a, g); err != nil {
-		return err
+		return publishError(err)
 	}
 	if a.Digest == "" {
 		a.Digest = artifact.Digest([]byte(fmt.Sprintf("%s:%f:%s", a.Name, a.Value, a.Unit)))
