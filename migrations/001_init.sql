@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS workflow_definitions (id TEXT NOT NULL, version INTEGER NOT NULL, digest TEXT NOT NULL, payload JSONB NOT NULL, created_at TIMESTAMPTZ NOT NULL, PRIMARY KEY (id, version));
+CREATE TABLE IF NOT EXISTS samples (id TEXT PRIMARY KEY, batch TEXT NOT NULL, source TEXT NOT NULL, state TEXT NOT NULL, payload JSONB NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS artifacts (digest TEXT PRIMARY KEY, schema_name TEXT, unit TEXT, status TEXT NOT NULL, payload JSONB NOT NULL, created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS provenance_records (id TEXT PRIMARY KEY, kind TEXT NOT NULL, record_type TEXT NOT NULL, payload JSONB NOT NULL, hash TEXT NOT NULL, previous_hash TEXT);

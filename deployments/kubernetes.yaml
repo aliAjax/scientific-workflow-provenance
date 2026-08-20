@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: workflow-provenance}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: workflow-provenance}}
+  template:
+    metadata: {labels: {app: workflow-provenance}}
+    spec:
+      containers:
+        - name: workflow
+          image: workflow-provenance:latest
+          ports: [{containerPort: 8088}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: workflow-provenance}
+spec:
+  selector: {app: workflow-provenance}
+  ports: [{port: 8088, targetPort: 8088}]

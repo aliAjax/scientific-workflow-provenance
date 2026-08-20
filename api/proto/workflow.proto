@@ -1,0 +1,12 @@
+syntax = "proto3";
+package provenance.v1;
+option go_package = "scientific-workflow-provenance/api/proto";
+service Planner { rpc Plan(PlanRequest) returns (PlanResponse); }
+service Scheduler { rpc Lease(LeaseRequest) returns (LeaseResponse); }
+service Provenance { rpc Query(QueryRequest) returns (QueryResponse); }
+message PlanRequest { string workflow_id = 1; int32 version = 2; }
+message PlanResponse { string digest = 1; repeated string step_ids = 2; }
+message LeaseRequest { string step_id = 1; string owner = 2; }
+message LeaseResponse { string lease_id = 1; string expires_at = 2; }
+message QueryRequest { string id = 1; }
+message QueryResponse { repeated string record_ids = 1; }

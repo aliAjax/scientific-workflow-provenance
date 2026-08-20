@@ -1,0 +1,6 @@
+services:
+  workflow:
+    build: ..
+    ports: ["8088:8088"]
+    environment:
+      HTTP_ADDR: ":8088"
