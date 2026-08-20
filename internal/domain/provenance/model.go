@@ -52,6 +52,8 @@ func (g *Graph) Add(r Record) Record {
 	g.Records[r.ID] = r
 	return r
 }
+
+func (g *Graph) AddValidated(r Record) (Record, error) { return g.Add(r), nil }
 func (g *Graph) Relate(r Relation) Relation {
 	g.mu.Lock()
 	defer g.mu.Unlock()
