@@ -58,7 +58,7 @@ func (m *MetricSet) ValuesSorted(name string) []float64 {
 }
 
 func (m *MetricSet) ValuesCopy(name string) []float64 {
-	return m.Values[name]
+	return append([]float64(nil), m.Values[name]...)
 }
 func (m *MetricSet) Names() []string {
 	o := []string{}

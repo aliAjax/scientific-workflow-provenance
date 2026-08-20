@@ -37,6 +37,20 @@ type Sample struct {
 var ErrNotFound = errors.New("sample not found")
 var ErrTransition = errors.New("invalid sample transition")
 
+func cloneSample(v Sample) Sample {
+	if v.ParentIDs != nil {
+		p := make([]string, len(v.ParentIDs))
+		copy(p, v.ParentIDs)
+		v.ParentIDs = p
+	}
+	if v.Qualities != nil {
+		q := make([]Quality, len(v.Qualities))
+		copy(q, v.Qualities)
+		v.Qualities = q
+	}
+	return v
+}
+
 type Store struct {
 	mu   sync.RWMutex
 	data map[string]Sample
@@ -55,7 +69,7 @@ func (s *Store) Put(v Sample) error {
 	if v.CreatedAt.IsZero() {
 		v.CreatedAt = time.Now().UTC()
 	}
-	s.data[v.ID] = v
+	s.data[v.ID] = cloneSample(v)
 	return nil
 }
 func (s *Store) Get(id string) (Sample, error) {
@@ -65,7 +79,7 @@ func (s *Store) Get(id string) (Sample, error) {
 	if !ok {
 		return Sample{}, ErrNotFound
 	}
-	return v, nil
+	return cloneSample(v), nil
 }
 func (s *Store) List() []Sample {
 	s.mu.RLock()

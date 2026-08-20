@@ -15,7 +15,7 @@ type Batch struct {
 func GroupByBatch(values []Sample) map[string][]Sample {
 	out := map[string][]Sample{}
 	for _, v := range values {
-		out[v.Batch] = append(out[v.Batch], v)
+		out[v.Batch] = append(out[v.Batch], cloneSample(v))
 	}
 	for k := range out {
 		sort.Slice(out[k], func(i, j int) bool { return out[k][i].ID < out[k][j].ID })

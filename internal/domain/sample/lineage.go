@@ -24,7 +24,7 @@ func Ancestors(root string, all []Sample) []Sample {
 			if !seen[s] {
 				seen[s] = true
 				if p, ok := byID[s]; ok {
-					out = append(out, p)
+					out = append(out, cloneSample(p))
 					walk(s)
 				}
 			}
