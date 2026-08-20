@@ -62,6 +62,14 @@ func write(w http.ResponseWriter, status int, v any) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
 }
+
+func writeRun(w http.ResponseWriter, status int, run workflow.Run) {
+	view := run
+	if run.Status == workflow.Retrying {
+		view.Status = workflow.Running
+	}
+	write(w, status, view)
+}
 func errWrite(w http.ResponseWriter, status int, err error) {
 	write(w, status, map[string]any{"error": map[string]any{"code": http.StatusText(status), "message": err.Error()}})
 }
@@ -244,7 +252,7 @@ func (s *Server) runAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(parts) == 4 {
-		write(w, 200, run)
+		writeRun(w, 200, run)
 		return
 	}
 	switch parts[4] {

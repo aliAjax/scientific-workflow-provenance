@@ -39,3 +39,13 @@ func NodeStatus(run workflow.Run, status workflow.RunStatus) []string {
 	sort.Strings(out)
 	return out
 }
+
+func InProgress(values []workflow.Run) []workflow.Run {
+	out := []workflow.Run{}
+	for _, v := range values {
+		if v.Status == workflow.Queued || v.Status == workflow.Running {
+			out = append(out, v)
+		}
+	}
+	return out
+}

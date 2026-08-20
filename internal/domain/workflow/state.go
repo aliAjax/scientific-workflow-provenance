@@ -2,7 +2,7 @@ package workflow
 
 import "fmt"
 
-var transitions = map[RunStatus]map[RunStatus]bool{Planned: {Queued: true, Cancelled: true}, Queued: {Running: true, Cancelled: true}, Running: {Succeeded: true, Failed: true, Retrying: true, WaitingInput: true, Cancelled: true}, Retrying: {Queued: true, Failed: true, Cancelled: true}, WaitingInput: {Queued: true, Cancelled: true}, Succeeded: {Invalidated: true}, Failed: {Retrying: true, Cancelled: true}, Invalidated: {}}
+var transitions = map[RunStatus]map[RunStatus]bool{Planned: {Queued: true, Cancelled: true}, Queued: {Running: true, Cancelled: true}, Running: {Succeeded: true, Failed: true, Retrying: true, WaitingInput: true, Cancelled: true}, Retrying: {Failed: true, Cancelled: true}, WaitingInput: {Queued: true, Cancelled: true}, Succeeded: {Invalidated: true}, Failed: {Retrying: true, Cancelled: true}, Invalidated: {}}
 
 func CanTransition(from, to RunStatus) bool { return transitions[from][to] }
 func Transition(run *Run, to RunStatus) error {
