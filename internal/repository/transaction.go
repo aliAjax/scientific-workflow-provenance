@@ -25,12 +25,19 @@ func (t *Tx) Do(apply, undo func()) error {
 func (t *Tx) Commit() { t.mu.Lock(); defer t.mu.Unlock(); t.closed = true; t.undos = nil }
 func (t *Tx) Rollback() {
 	t.mu.Lock()
-	defer t.mu.Unlock()
 	if t.closed {
+		t.mu.Unlock()
 		return
 	}
-	for i := len(t.undos) - 1; i >= 0; i-- {
-		t.undos[i]()
-	}
+	// Mark closed and detach the undo list before running callbacks. An undo
+	// callback may itself call Do (e.g. nested cleanup); holding the lock across
+	// the callbacks would deadlock that reentrant call, and leaving the list
+	// mutable would let a concurrent Do append to a slice we are unwinding.
+	undos := t.undos
+	t.undos = nil
 	t.closed = true
+	t.mu.Unlock()
+	for i := len(undos) - 1; i >= 0; i-- {
+		undos[i]()
+	}
 }

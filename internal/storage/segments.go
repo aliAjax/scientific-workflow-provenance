@@ -44,6 +44,7 @@ func (l *SegmentLog) Pending() []Segment {
 	o := []Segment{}
 	for _, s := range l.items {
 		if !s.Uploaded {
+			s.Payload = append([]byte(nil), s.Payload...)
 			o = append(o, s)
 		}
 	}

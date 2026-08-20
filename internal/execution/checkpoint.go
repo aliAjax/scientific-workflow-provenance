@@ -35,7 +35,15 @@ func (s *CheckpointStore) Latest(run string) (Snapshot, error) {
 	if len(v) == 0 {
 		return Snapshot{}, errors.New("no checkpoint")
 	}
-	return v[len(v)-1], nil
+	out := v[len(v)-1]
+	if out.States != nil {
+		cp := make(map[string]string, len(out.States))
+		for k, val := range out.States {
+			cp[k] = val
+		}
+		out.States = cp
+	}
+	return out, nil
 }
 func (s *CheckpointStore) JSON(run string) ([]byte, error) {
 	v, e := s.Latest(run)

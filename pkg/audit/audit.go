@@ -52,5 +52,16 @@ func (c *Chain) Verify() bool {
 func (c *Chain) List() []Entry {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return append([]Entry(nil), c.entries...)
+	out := make([]Entry, len(c.entries))
+	for i, e := range c.entries {
+		out[i] = e
+		if e.Metadata != nil {
+			cp := make(map[string]string, len(e.Metadata))
+			for k, v := range e.Metadata {
+				cp[k] = v
+			}
+			out[i].Metadata = cp
+		}
+	}
+	return out
 }
